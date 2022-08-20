@@ -1,0 +1,181 @@
+.main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.main-container .contentANDbutton {
+    background-color: #ecf0f1;
+    padding: 2rem;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.main-container .contentANDbutton .goToPrint {
+    margin-top: 2.5rem;
+}
+
+.main-container .contentANDbutton .goToPrint a {
+    padding: 2rem 1rem;
+}
+
+.main-container .contentANDbutton h3 {
+    letter-spacing: .2rem;
+    color: #34495e;
+}
+
+.main-container .contentANDbutton .button_div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 3rem;
+}
+
+.main-container .contentANDbutton .button_div .smile_div .smile_btn,
+.main-container .contentANDbutton .button_div .normal_div .normal_btn,
+.main-container .contentANDbutton .button_div .bad_div .bad_btn {
+    border: none;
+    background-color: transparent;
+}
+
+.main-container .contentANDbutton .button_div .smile_div .smile_btn i {
+    /* border: 1px solid red; */
+    font-size: 5rem;
+    color: #2ecc71;
+    border-radius: 50%;
+    border: none;
+}
+
+.main-container .contentANDbutton .button_div .smile_div h4 {
+    color: #2ecc71;
+    margin-top: 1rem;
+}
+
+.main-container .contentANDbutton .button_div .normal_div .normal_btn i {
+    /* border: 1px solid red; */
+    font-size: 5rem;
+    color: #bdc3c7;
+    border-radius: 50%;
+    border: none;
+}
+
+.main-container .contentANDbutton .button_div .normal_div h4 {
+    color: #bdc3c7;
+    margin-top: 1rem;
+}
+
+.main-container .contentANDbutton .button_div .bad_div .bad_btn i {
+    font-size: 5rem;
+    color: #e74c3c;
+    border-radius: 50%;
+    border: none;
+}
+
+.main-container .contentANDbutton .button_div .bad_div h4 {
+    color: #e74c3c;
+    margin-top: 1rem;
+}
+
+#yearlyExcel {
+    position: absolute;
+}
+
+#Yearly_table_length {
+    display: none;
+}
+
+#Yearly_table_paginate {
+    margin-top: 1rem;
+}
+
+#Yearly_table_filter {
+    margin-bottom: 1rem;
+}
+
+#Yearly_table_filter input {
+    padding: 0.5rem 0;
+}
+
+#Daily_table_length {
+    display: none;
+}
+
+#Yearly_table_info {
+    display: none;
+}
+
+.chartMenu {
+    /* width: 100vw; */
+    height: 40px;
+    background: #1A1A1A;
+    /* color: rgba(255, 26, 104, 1); */
+}
+
+.chartMenu p {
+    padding: 10px;
+    font-size: 20px;
+}
+
+.chartCard {
+    /* width: 100vw; */
+    /* height: calc(100vh - 40px); */
+    /* background: rgba(255, 26, 104, 0.2); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chartBox {
+    border-radius: 20px;
+    /* border: solid 3px #bdc3c7; */
+    background: white;
+    
+}
+@media only screen and (max-width: 999px) {
+    
+
+    #chartCard{
+        margin-top: 0 auto;
+        
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .notiData_show {
+        flex-wrap: wrap;
+    }
+
+    .teb-table {
+        margin: 2rem;
+        display: flex;
+        flex-direction: column;
+        flex: 100%;
+    }
+    #dailySearchForm .form-group .dailyExDiv a {
+        margin-bottom: 1rem;
+    }
+
+    #dailySearchForm .form-group .dailySearchDiv {
+        margin-top: 0.3rem;
+        display: flex;
+        justify-content: end;
+
+    }
+
+    #Montserchform .form-group .monthExDIv a {
+        margin-bottom: 1rem;
+    }
+
+    #Montserchform .form-group .monthSearchDiv {
+        margin-top: 0.3rem;
+        display: flex;
+        justify-content: end;
+
+    }
+
+    #Nodata {
+        text-align: center;
+    }
+}
