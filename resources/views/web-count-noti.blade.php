@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Dica Feedback</title>
+    <link rel="shortcut icon" href="{{ asset('images/logo.jpg') }}" type="image/x-icon" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('noti.css') }}">
@@ -27,7 +28,7 @@
         </div>
         <div class="row mt-5">
             {{-- {{ dd($yearly) }} --}}
-            <div class="teb-table col-md-6">
+            <div class="teb-table col-md-6 ms-0">
                 <!-- Tabs navs -->
                 <ul class="nav nav-tabs nav-fill mb-3" id="ex1" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -55,14 +56,18 @@
 
                                         <div class="col-md-4 dailyInDiv">
                                             <input type="month" name="dailyToYMVal" id="dailyToYMVal"
-                                                class="form-control">
+                                                class="form-control" value="{{ date('Y-m') }}">
                                         </div>
-                                        <div class="col-md-4 dailySearchDiv">
+                                        <div class="col-sm-4 col-md-4 dailySearchDiv">
                                             <button type="submit" name="submit" class="btn btn-sm btn-primary py-2"
                                                 id="dailyYMValBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
-                                        <div class="col-md-4 dailyExDiv">
-                                            <a class="btn btn-success" href="{{ url('/exportExcel') }}"><i
+
+                                        @php
+                                            // dd($_SERVER);
+                                        @endphp
+                                        <div class="col-sm-4 col-md-4 dailyExDiv">
+                                            <a class="btn btn-success" id="excel_dalily_download" onclick="showDate()" href="{{ route('data.dailyExcel') }}"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -75,7 +80,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>Daily</th>
-                                    <th>Good</th>
+                                    <th>Excellent</th>
                                     <th>Normal</th>
                                     <th>Bad</th>
                                 </tr>
@@ -103,15 +108,15 @@
                                     <div class="form-group row mb-3">
                                         <div class="col-md-4">
                                             <input type="text" name="monthsSearch" id="year"
-                                                class="form-control" placeholder="search year">
+                                                class="form-control" placeholder="search year" value="{{ date('Y') }}">
                                         </div>
-                                        <div class="col-md-4 monthSearchDiv">
+                                        <div class="col-sm-4 col-md-4 monthSearchDiv">
                                             <button type="submit" name="submit" class="btn btn-sm btn-primary py-2"
                                                 id="month_search_btn"><i
                                                     class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
-                                        <div class="col-md-4 monthExDIv">
-                                            <a class="btn btn-success" href="{{ url('/exportExcel') }}"><i
+                                        <div class="col-sm-4 col-md-4 monthExDIv">
+                                            <a class="btn btn-success" id="excel_monthly_download" onclick="showMonth()" href="{{ route('data.exportExcel') }}"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -122,7 +127,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>Months</th>
-                                    <th>Good</th>
+                                    <th>Excellent</th>
                                     <th>Normal</th>
                                     <th>Bad</th>
                                 </tr>
@@ -147,17 +152,17 @@
                             <div class="form-group">
                                 <form action="" id="yearlySearch">
                                     <div class="form-group row mb-3">
-                                        <div class="col-md-4">
+                                        <div class="col-sm-4 col-md-4 dailyInDiv">
                                             <input type="text" name="yearlySearch" id="yearlySearchVal"
-                                                class="form-control" placeholder="search year">
+                                                class="form-control" value="{{ date('Y') }}">
                                         </div>
-                                        <div class="col-md-4 yearSearchDiv">
+                                        <div class="col-sm-4 col-md-4 dailySearchDiv">
                                             <button type="submit" name="submit" class="btn btn-sm btn-primary py-2"
                                                 id="yearSearchDiv"><i
                                                     class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
-                                        <div class="col-md-4 monthExDIv">
-                                            <a class="btn btn-success" href="{{ url('/exportExcel') }}"><i
+                                        <div class="col-sm-4 col-md-4 dailyExDiv">
+                                            <a class="btn btn-success" id="excel_yearly_download" onclick="showYear()" href="{{ route('data.yearlyExcel') }}"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -168,7 +173,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>Yearly</th>
-                                    <th>Good</th>
+                                    <th>Excellent</th>
                                     <th>Normal</th>
                                     <th>Bad</th>
                                 </tr>
@@ -190,7 +195,7 @@
                 <!-- Tabs content -->
             </div>
             <div class="col-md-6">
-                <div class="row mb-3">
+                <div class="">
                     <div class="col-md-12">
                         <select class="form-select" id="chartSelect" aria-label="Default select example">
                             <option value="line">Line Chart</option>
@@ -200,13 +205,8 @@
                         </select>
                     </div>
                 </div>
-                <div id="feedback-data" style="width: 590px;height:400px;">
+                <div id="feedback-data">
                 </div>
-
-                {{-- <div class="chartBox" class="">
-                    <canvas id="myChart"></canvas>
-                </div> --}}
-                {{-- {{ dd($monthlyGood->values()) }} --}}
             </div>
         </div>
     </div>
@@ -225,6 +225,32 @@
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
+        let url_path = window.location.origin + window.location.pathname; 
+        console.log(url_path);
+        function showDate() {
+            let date = document.getElementById('dailyToYMVal').value;
+            date = date.split('-');
+            // console.log(window);
+            let url_path = window.location.origin + window.location.pathname; 
+            document.getElementById('excel_dalily_download').href = "{{ route('data.dailyExcel') }}" + '?month='+date[1]+'&year='+date[0];
+            console.log(document.getElementById('excel_dalily_download').href);
+
+        }
+        function showMonth() {
+            let month = document.getElementById('year').value;
+            console.log(month);
+            let url_path = window.location.origin + window.location.pathname;
+            document.getElementById('excel_monthly_download').href = "{{ route('data.exportExcel') }}" + '?year='+month;
+            console.log(document.getElementById('excel_monthly_download').href);
+        }
+
+        function showYear() {
+            let yearserch = document.getElementById('yearlySearchVal').value;
+            console.log(yearserch);
+            let url_path = window.location.origin + window.location.pathname;
+            document.getElementById('excel_yearly_download').href = "{{ route('data.yearlyExcel') }}" + '?year=' +yearserch;
+            console.log(document.getElementById('excel_yearly_download').href);
+        }
         function montlyChart() {
             // Initialize the echarts instance based on the prepared dom
             var myChart = echarts.init(document.getElementById('feedback-data'));
@@ -1411,17 +1437,22 @@
 
         }
 
+        dailyChart()
         
         document.getElementById("ex2-tab-1").addEventListener("click", () => {
             dailyChart()
+            
         });
 
         document.getElementById("ex2-tab-2").addEventListener("click", () => {
             montlyChart()
-        })
+            $('#chartSelect').val('line')
+           
+        });
 
         document.getElementById("ex2-tab-3").addEventListener("click", () => {
             yearlyChart()
+            $('#chartSelect').val('line')
         });
 
         // document.getElementById("")

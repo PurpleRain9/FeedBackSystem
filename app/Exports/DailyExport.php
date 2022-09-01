@@ -3,46 +3,53 @@
 namespace App\Exports;
 
 use App\Models\Notialert;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
-class UsersExport implements FromCollection, WithHeadings, WithEvents ,WithStrictNullComparison
+
+class DailyExport implements FromCollection, WithHeadings , WithEvents, WithStrictNullComparison
 {
     /**
-     * 
     * @return \Illuminate\Support\Collection
     */
-  
+
+    protected $objmonth;
     protected $objyear;
 
-    function __construct($requestYear){
-        $this->objyear = $requestYear;
+    function __construct($reqmonth, $reqyear){
+        $this->objmonth = $reqmonth;
+        $this->objyear = $reqyear;
         // $this->year = $req->yearMonthArray[1];
     }
 
     public function collection()
     {
-       $year= $this->objyear;
-       $monthlyExport = DB::select("select month(created_at) date, monthname(created_at) date, 
+        $month = $this->objmonth;
+        $year = $this->objyear;
+
+        // dd($month, $year);
+        $dailyExport = DB::select("
+            select cast(created_at as date) date, 
             count(case when feedback_number = 1 then 1 end) good, 
             count(case when feedback_number = 2 then 1 end) normal, 
             count(case when feedback_number = 3 then 1 end) bad 
-            
             from notialerts 
-            where year(created_at) = $year
-            group by month(created_at), monthname(created_at)
-            order by month(created_at)");
-    
-        return collect($monthlyExport);
+            where month(created_at) = $month AND year(created_at) = $year
+            group by cast(created_at as date);
+        ");
+        $dai = collect($dailyExport);
+        return $dai;
         
+        // return collect($dailyExport);
     }
+    
     public function headings() :array
     {
-        return ["Monthly", "Excellent", "Normal","Bad"];
+        return ["Daily", "Excellent", "Normal","Bad"];
     }
 
     public function registerEvents(): array
@@ -54,10 +61,9 @@ class UsersExport implements FromCollection, WithHeadings, WithEvents ,WithStric
                 $event->sheet->getDelegate()->getStyle('A1:D1')
                                 ->getAlignment()
                                 ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                                
    
             },
         ];
     }
-
-   
 }

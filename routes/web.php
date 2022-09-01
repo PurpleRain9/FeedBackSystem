@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/' ,[NotiAlertController::class ,'view']);
+Route::get('/webview', [NotiAlertController::class, 'webview'])->name('feedback.webview');
 
 // feedback create
 Route::post('/create-feedback', [NotiAlertController::class, 'create'])->name('feedback.create');
@@ -28,5 +29,7 @@ Route::get('/feedback-data', [NotiAlertController::class, 'showData'])->name('fe
 Route::get('/fromtoMonthSearch', [NotiAlertController::class, 'fromtoSearch'])->name('month.search');
 Route::get('/fromtoDailySearch', [NotiAlertController::class, 'dailySearch'])->name('daily.search');
 Route::get('/exportExcel', [NotiAlertController::class, 'exportExcel'])->name('data.exportExcel');
+Route::get('/dailyExcel', [NotiAlertController::class, 'dailyExcel'])->name('data.dailyExcel');  
+Route::get('/yearlyExcel', [NotiAlertController::class, 'yearlyExcel'])->name('data.yearlyExcel');
 Route::get('/yearSearch' , [NotiAlertController::class, 'yearSearch'])->name('year.search');
 Route::get('/test', [NotiAlertController::class, 'test'])->name('test');

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DailyExport;
 use App\Models\Notialert;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\UsersExport;
+use App\Exports\YearlyExport;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 
 class NotiAlertController extends Controller
 {
@@ -15,6 +18,11 @@ class NotiAlertController extends Controller
     public function view()
     {
         return view('web-page-noti');
+    }
+    
+    public function webview() 
+    {
+        return view('web-view');
     }
 
     // For Feedback save
@@ -357,9 +365,26 @@ class NotiAlertController extends Controller
 
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        return Excel::download(new UsersExport, 'feed_back.xlsx');
+        $requestYear = $request['year'];
+        return Excel::download(new UsersExport($requestYear), 'feed_back.xlsx');
+    }
+
+    public function dailyExcel(Request $req)
+    {
+        $reqmonth = $req['month'];
+        $reqyear = $req['year'];
+        // DailyExport::$month = $reqmonth;
+        // DailyExport::$year = $reqyear;
+        // dd(DailyExport::$month, DailyExport::$year);
+        return Excel::download(new DailyExport($reqmonth, $reqyear), 'feed_back_daily'.$reqmonth.'.xlsx');
+    }
+
+    public function yearlyExcel(Request $request)
+    {
+        $requestyear = $request["year"];
+        return Excel::download(new YearlyExport($requestyear), 'feed_back_yearly.xlsx');
     }
 
 }

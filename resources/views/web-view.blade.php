@@ -11,7 +11,7 @@
         integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link rel="shortcut icon" href="{{ asset('images/logo.jpg') }}" type="image/x-icon" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.4.0/mdb.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('noti.css') }}">
+    <link rel="stylesheet" href="{{ asset('webview.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
         integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -19,18 +19,14 @@
 
 <body>
     <div class="main-container container-fluid">
-        <div class="goToPrint d-flex justify-content-end">
-                <a href="{{ route('feedback.datashwow') }}" class="btn btn-primary fw-bold py-2">View Report <i
-                        class="fa-solid fa-caret-right"></i></a>
-        </div>
         <div class="contentANDbutton card">
-           
             <h3>
                 Would it be satisfy for the services of 
             </h3>
             <h3>
-               Directorate of Investment and Company Administration on today?
+               Directorate of Investment and Company Administration
             </h3>
+            <h3> on today? </h3>
             <div class="button_div">
                 <div class="bad_div">
                     <form action="{{ route('feedback.create') }}" method="POST">
