@@ -55,19 +55,26 @@
                                     <div class="form-group row mb-3">
 
                                         <div class="col-md-4 dailyInDiv">
-                                            <input type="month" name="dailyToYMVal" id="dailyToYMVal"
-                                                class="form-control" value="{{ date('Y-m') }}">
+                                            <input type="date" name="dailyToYMVal" id="dailyToYMVal"
+                                                class="form-control" value="">
                                         </div>
-                                        <div class="col-sm-4 col-md-4 dailySearchDiv">
+                                        <div class="col-md-4 dailyInTO">
+                                            <input type="date" name="dailyToMValTo" id="dailyToYMValTo"
+                                                class="form-control" value="">
+                                        </div>
+
+                                        <div class="col-md-1 dailySearchDiv">
                                             <button type="submit" name="submit" class="btn btn-sm btn-primary py-2"
-                                                id="dailyYMValBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                                id="dailyYMValBtn" onclick="dailyDinamic()"><i
+                                                    class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
 
                                         @php
                                             // dd($_SERVER);
                                         @endphp
-                                        <div class="col-sm-4 col-md-4 dailyExDiv">
-                                            <a class="btn btn-success" id="excel_dalily_download" onclick="showDate()" href="{{ route('data.dailyExcel') }}"><i
+                                        <div class="col-md-3 dailyExDiv">
+                                            <a class="btn btn-success" id="excel_dalily_download" onclick="showDate()"
+                                                href="{{ route('data.dailyExcel') }}" style="font-size:0.66rem"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -108,15 +115,17 @@
                                     <div class="form-group row mb-3">
                                         <div class="col-md-4">
                                             <input type="text" name="monthsSearch" id="year"
-                                                class="form-control" placeholder="search year" value="{{ date('Y') }}">
+                                                class="form-control" placeholder="search year"
+                                                value="{{ date('Y') }}">
                                         </div>
                                         <div class="col-sm-4 col-md-4 monthSearchDiv">
                                             <button type="submit" name="submit" class="btn btn-sm btn-primary py-2"
-                                                id="month_search_btn"><i
+                                                id="month_search_btn" onclick="monthlyDinamic()"><i
                                                     class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
                                         <div class="col-sm-4 col-md-4 monthExDIv">
-                                            <a class="btn btn-success" id="excel_monthly_download" onclick="showMonth()" href="{{ route('data.exportExcel') }}"><i
+                                            <a class="btn btn-success" id="excel_monthly_download"
+                                                onclick="showMonth()" href="{{ route('data.exportExcel') }}"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -162,7 +171,8 @@
                                                     class="fa-solid fa-magnifying-glass"></i></button>
                                         </div>
                                         <div class="col-sm-4 col-md-4 dailyExDiv">
-                                            <a class="btn btn-success" id="excel_yearly_download" onclick="showYear()" href="{{ route('data.yearlyExcel') }}"><i
+                                            <a class="btn btn-success" id="excel_yearly_download"
+                                                onclick="showYear()" href="{{ route('data.yearlyExcel') }}"><i
                                                     class="fa-solid fa-download"></i> Excel</a>
                                         </div>
                                     </div>
@@ -225,22 +235,30 @@
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
-        let url_path = window.location.origin + window.location.pathname; 
+        let url_path = window.location.origin + window.location.pathname;
         console.log(url_path);
+
         function showDate() {
-            let date = document.getElementById('dailyToYMVal').value;
-            date = date.split('-');
+            // let date = document.getElementById('dailyToYMVal').value;
+            // date = date.split('-');
+            let fromDate = document.getElementById('dailyToYMVal').value;
+            // console.log(fromDate);
+            let toDate = document.getElementById('dailyToYMValTo').value;
+            // console.log(toDate);
+
             // console.log(window);
-            let url_path = window.location.origin + window.location.pathname; 
-            document.getElementById('excel_dalily_download').href = "{{ route('data.dailyExcel') }}" + '?month='+date[1]+'&year='+date[0];
+            let url_path = window.location.origin + window.location.pathname;
+            document.getElementById('excel_dalily_download').href = "{{ route('data.dailyExcel') }}" + '?fromDate=' +
+                fromDate + '&toDate=' + toDate;
             console.log(document.getElementById('excel_dalily_download').href);
 
         }
+
         function showMonth() {
             let month = document.getElementById('year').value;
             console.log(month);
             let url_path = window.location.origin + window.location.pathname;
-            document.getElementById('excel_monthly_download').href = "{{ route('data.exportExcel') }}" + '?year='+month;
+            document.getElementById('excel_monthly_download').href = "{{ route('data.exportExcel') }}" + '?year=' + month;
             console.log(document.getElementById('excel_monthly_download').href);
         }
 
@@ -248,19 +266,538 @@
             let yearserch = document.getElementById('yearlySearchVal').value;
             console.log(yearserch);
             let url_path = window.location.origin + window.location.pathname;
-            document.getElementById('excel_yearly_download').href = "{{ route('data.yearlyExcel') }}" + '?year=' +yearserch;
             console.log(document.getElementById('excel_yearly_download').href);
+            document.getElementById('excel_yearly_download').href = "{{ route('data.yearlyExcel') }}" + '?year=' +
+                yearserch;
+        }
+        function monthlyDinamic(){
+            var myChart = echarts.init(document.getElementById('feedback-data'));
+            let date = document.getElementById('year').value;
+            // console.log(date);
+            $.ajax({
+                type: "GET",
+                url: "{{ route('monthly.searchChart') }}",
+                data: {
+                    'date':date
+                },
+                dataType: "json",
+                success: function (response) {
+                    // console.log(response);
+                    var length = response.length;
+                    // console.log(length);
+                    var dateArray = [];
+                    var excellentArray = [];
+                    var normalArray = [];
+                    var badArray = [];
+                    var pieOneChart = [];
+                    var pieTwoChart = [];
+                    var pieThreeChart = [];
+                    response.forEach((dp, i) => {
+                        dpo = {
+                            name: dp.date,
+                            value: dp.good
+                        }
+                        pieOneChart[i] = dpo;
+                        // console.log(dpo);
+                    });
+
+                    response.forEach((dpt, i) => {
+                        dptwo = {
+                            name: dpt.date,
+                            value: dpt.normal
+                        }
+                        pieTwoChart[i] = dptwo;
+                    });
+
+                    response.forEach((dph, i) => {
+                        dpth = {
+                            name: dph.date,
+                            value: dph.bad
+                        }
+                        pieThreeChart[i] = dpth;
+
+                    })
+                    for (var i = 0; i < length; i++){
+
+                        var date = response[i].date;
+                        dateArray[i] = date;
+                        
+                        var excellent = response[i].good;
+                        excellentArray[i] = excellent;
+
+                        var normal = response[i].normal;
+                        normalArray[i] = normal
+
+                        var bad = response[i].bad;
+                        badArray[i] = bad;
+
+                        var line = {
+                            title: {
+
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                data: ['Excellent', 'Normal', 'Bad']
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            xAxis: {
+                                text: 'Months',
+                                type: 'category',
+                                data: dateArray,
+                                boundaryGap: false,
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                    color: 'red',
+                                    name: 'Bad',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: badArray
+                                },
+
+                                {
+                                    color: 'gray',
+                                    name: 'Normal',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: normalArray
+                                },
+                                {
+                                    color: 'green',
+                                    name: 'Excellent',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: excellentArray
+                                },
+
+                            ]
+                        };
+
+                        var bar = {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            },
+                            legend: {},
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            xAxis: [{
+                                type: 'category',
+                                data: dateArray
+                            }],
+                            yAxis: [{
+                                type: 'value'
+                            }],
+                            series: [{
+                                    name: 'Excellent',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    color: 'green',
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: excellentArray
+                                },
+                                {
+                                    name: 'Normal',
+                                    color: 'gray',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: normalArray
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    color: 'red',
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: badArray
+                                },
+                            ]
+                        };
+                        var pie = {
+                            title: [{
+                                    text: 'Emoji For Daily',
+                                    subtext: 'Pie Data',
+                                    left: 'center'
+                                },
+                                {
+                                    subtext: 'Excellent',
+                                    left: '23%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Normal',
+                                    left: '50%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Bad',
+                                    right: '20%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            legend: {
+                                bottom: 10,
+                                left: 'center'
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            series: [{
+
+                                    name: 'Excellent',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '25%'],
+                                    datasetIndex: 1,
+                                    data: pieOneChart
+                                },
+                                {
+                                    name: 'Normal',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '50%'],
+                                    datasetIndex: 2,
+
+                                    data: pieTwoChart
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '75%'],
+                                    datasetIndex: 3,
+                                    data: pieThreeChart
+                                },
+
+                            ],
+                            media: [{
+                                    query: {
+                                        minAspectRatio: 1
+                                    },
+
+                                    option: {
+                                        series: [{
+                                                center: ['25%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['75%', '50%']
+                                            },
+                                        ]
+                                    }
+                                },
+                                {
+                                    option: {
+                                        series: [{
+                                                center: ['50%', '25%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '75%']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        };
+                        var donut = {
+                            title: [{
+                                    text: 'Emoji For Daily',
+                                    subtext: 'Doughnut Chart Data',
+                                    left: 'center'
+                                },
+                                {
+                                    subtext: 'Excellent',
+                                    left: '23%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Normal',
+                                    left: '50%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Bad',
+                                    right: '20%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            legend: {
+                                bottom: 10,
+                                left: 'center'
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            series: [{
+                                    name: 'Excellent',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '25%'],
+                                    datasetIndex: 1,
+                                    data: pieOneChart,
+                                },
+                                {
+                                    name: 'Normal',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '50%'],
+                                    datasetIndex: 2,
+
+                                    data: pieTwoChart,
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '75%'],
+                                    datasetIndex: 3,
+                                    data: pieThreeChart,
+                                }
+                            ],
+                            media: [{
+                                    query: {
+                                        minAspectRatio: 1
+                                    },
+                                    option: {
+                                        series: [{
+                                                center: ['25%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['75%', '50%']
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    option: {
+                                        series: [{
+                                                center: ['50%', '25%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '75%']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        };
+                        myChart.setOption(line);
+                        // Display the chart using the configuration items and data just specified.
+                        $(document).ready(function() {
+                            // $('#feedback-data').html('');
+                            $('#chartSelect').on('change', function() {
+                                let chartVal = $('#chartSelect').val()
+                                // console.log(chartVal);
+                                // myChart.destory();
+                                if (chartVal === 'line') {
+
+                                    myChart.setOption(line, true);
+
+                                }
+                                if (chartVal === 'bar') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(bar, true);
+
+                                }
+                                if (chartVal === 'pie') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(pie, true);
+                                }
+                                if (chartVal === 'donut') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(donut, true);
+                                }
+
+                            });
+                        });
+
+                    }
+                    
+
+                }
+            });
         }
         function montlyChart() {
             // Initialize the echarts instance based on the prepared dom
             var myChart = echarts.init(document.getElementById('feedback-data'));
-            let chartOne = @php echo $feedbackChartOne; @endphp;
+            // $('#year').val('')
             let chartTwo = @php echo $feedbackChartTwo; @endphp;
+            let chartOne = @php echo $feedbackChartOne; @endphp;
             let chartThree = @php echo $feedbackChartThree; @endphp;
             let mgs = @php echo $monthlyGood; @endphp;
             let mns = @php echo $monthlyNormal; @endphp;
             let mbs = @php echo $monthlyBad; @endphp;
-            
+
 
             // For Pie Excellent
             var pieDataOne = [];
@@ -312,8 +849,15 @@
                     containLabel: true
                 },
                 toolbox: {
+                    show: true,
                     feature: {
-                        saveAsImage: {}
+                        // mark : {show: true},
+                        // dataView : {show: true, readOnly: false},
+                        // magicType: {show: true, type: ['line', 'bar']},
+                        // restore : {show: true},
+                        saveAsImage: {
+                            show: true
+                        }
                     }
                 },
                 xAxis: {
@@ -328,26 +872,43 @@
                 yAxis: {
                     type: 'value'
                 },
-                series: [{
-                        color: 'green',
-                        name: 'Excellent',
+                series: [
+                    {
+                        color: 'red',
+                        name: 'Bad',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
-                        data: chartOne
+                        data: chartThree
                     },
                     {
                         color: 'gray',
                         name: 'Normal',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
                         data: chartTwo
                     },
+                    
                     {
-                        color: 'red',
-                        name: 'Bad',
+                        color: 'green',
+                        name: 'Excellent',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
-                        data: chartThree
+                        data: chartOne
                     },
                 ]
             };
@@ -366,6 +927,11 @@
                     bottom: '3%',
                     containLabel: true
                 },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
                 xAxis: [{
                     type: 'category',
                     data: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
@@ -379,39 +945,73 @@
                 series: [{
                         name: 'Excellent',
                         type: 'bar',
+                        label: {
+                            show: true,
+                            position: 'middle'
+                        },
                         color: 'green',
                         emphasis: {
                             focus: 'series'
                         },
+
                         data: chartOne
                     },
                     {
                         name: 'Normal',
                         color: 'gray',
                         type: 'bar',
+                        label: {
+                            show: true,
+                            position: 'middle'
+                        },
                         emphasis: {
                             focus: 'series'
                         },
+
                         data: chartTwo
                     },
                     {
                         name: 'Bad',
                         type: 'bar',
+                        label: {
+                            show: true,
+                            position: 'middle'
+                        },
                         color: 'red',
                         emphasis: {
                             focus: 'series'
                         },
+
                         data: chartThree
                     },
                 ]
             };
 
             var pie = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Pie Data',
-                    left: 'center'
-                },
+                title: [{
+                        text: 'Emoji For Monthly',
+                        subtext: 'Pie Chart Data',
+                        left: 'center'
+                    },
+                    {
+                        subtext: 'Excellent',
+                        left: '23%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Normal',
+                        left: '50%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Bad',
+                        right: '20%',
+                        top: '70%',
+                        textAlign: 'center'
+                    }
+                ],
                 tooltip: {
                     trigger: 'item'
                 },
@@ -419,10 +1019,21 @@
                     bottom: 10,
                     left: 'center'
                 },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
                 series: [{
                         name: 'Excellent',
                         type: 'pie',
-                        radius: '20%',
+                        label: {
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
+
+                        },
+                        radius: '30%',
                         center: ['50%', '25%'],
                         datasetIndex: 1,
                         data: pieDataOne,
@@ -430,7 +1041,13 @@
                     {
                         name: 'Normal',
                         type: 'pie',
-                        radius: '20%',
+                        label: {
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
+
+                        },
+                        radius: '30%',
                         center: ['50%', '50%'],
                         datasetIndex: 2,
 
@@ -439,7 +1056,13 @@
                     {
                         name: 'Bad',
                         type: 'pie',
-                        radius: '20%',
+                        label: {
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
+
+                        },
+                        radius: '30%',
                         center: ['50%', '75%'],
                         datasetIndex: 3,
                         data: pieDataThree,
@@ -481,17 +1104,41 @@
             };
 
             var donut = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Doughnut Data',
-                    left: 'center'
-                },
+                title: [{
+                        text: 'Emoji For Monthly',
+                        subtext: 'Doughnut Chart Data',
+                        left: 'center'
+                    },
+                    {
+                        subtext: 'Excellent',
+                        left: '23%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Normal',
+                        left: '50%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Bad',
+                        right: '20%',
+                        top: '70%',
+                        textAlign: 'center'
+                    }
+                ],
                 tooltip: {
                     trigger: 'item'
                 },
                 legend: {
                     bottom: 10,
                     left: 'center'
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
                 },
                 series: [{
                         name: 'Excellent',
@@ -504,8 +1151,9 @@
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
                         },
                         emphasis: {
                             label: {
@@ -515,7 +1163,7 @@
                             }
                         },
                         labelLine: {
-                            show: false
+                            show: true
                         },
                         radius: '30%',
                         center: ['50%', '25%'],
@@ -525,6 +1173,11 @@
                     {
                         name: 'Normal',
                         type: 'pie',
+                        label: {
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
+                        },
                         radius: ['40%', '70%'],
                         avoidLabelOverlap: false,
                         itemStyle: {
@@ -532,10 +1185,7 @@
                             borderColor: '#fff',
                             borderWidth: 2
                         },
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
+
                         emphasis: {
                             label: {
                                 show: true,
@@ -544,7 +1194,7 @@
                             }
                         },
                         labelLine: {
-                            show: false
+                            show: true
                         },
                         radius: '30%',
                         center: ['50%', '50%'],
@@ -555,6 +1205,7 @@
                     {
                         name: 'Bad',
                         type: 'pie',
+
                         radius: ['40%', '70%'],
                         avoidLabelOverlap: false,
                         itemStyle: {
@@ -563,8 +1214,9 @@
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: true,
+                            formatter: '{c}',
+                            position: 'inside'
                         },
                         emphasis: {
                             label: {
@@ -574,7 +1226,7 @@
                             }
                         },
                         labelLine: {
-                            show: false
+                            show: true
                         },
                         radius: '30%',
                         center: ['50%', '75%'],
@@ -646,395 +1298,1030 @@
             });
         }
 
-        function dailyChart() {
-
-            // Initialize the echarts instance based on the prepared dom
+        function dailyDinamic() {
             var myChart = echarts.init(document.getElementById('feedback-data'));
-            let chartOne = @php echo $DaliyChartOne; @endphp;
-            let chartTwo = @php echo $DaliyChartTwo; @endphp;
-            let chartThree = @php echo $DaliyChartThree; @endphp;
-            let date = @php echo $date; @endphp;
-            let dateChange = Object.values(date);
-            let changeOne = Object.values(chartOne);
-            let changeTwo = Object.values(chartTwo);
-            let changeThree = Object.values(chartThree);
-            console.log(changeOne);
+            let fromDate = document.getElementById('dailyToYMVal').value;
+            let toDate = document.getElementById('dailyToYMValTo').value;
+            console.log('this is fromDate', fromDate);
+            console.log('this is toDate', toDate);
+            $.ajax({
+                type: "GET",
+                url: "{{ route('daily.searchChart') }}",
+                data: {
+                    'fromDate': fromDate,
+                    'toDate': toDate
+                },
+                dataType: "json",
+                success: function(response) {
+                    // console.log(response);
+                    var len = response.length;
+                    // console.log(len);
+                    var dateArray = [];
+                    var excellentArray = [];
+                    var normalArray = [];
+                    var badArray = [];
+                    var pieOneChart = [];
+                    var pieTwoChart = [];
+                    var pieThreeChart = [];
 
-            var dPieChart = [];
-            chartOne.forEach((dp, i) => {
-                dpo = {
-                    name: dp[0],
-                    value: dp[1]
+                    response.forEach((dp, i) => {
+                        dpo = {
+                            name: dp.date,
+                            value: dp.good
+                        }
+                        pieOneChart[i] = dpo;
+                        // console.log(dpo);
+                    });
+
+                    response.forEach((dpt, i) => {
+                        dptwo = {
+                            name: dpt.date,
+                            value: dpt.normal
+                        }
+                        pieTwoChart[i] = dptwo;
+                    });
+
+                    response.forEach((dph, i) => {
+                        dpth = {
+                            name: dph.date,
+                            value: dph.bad
+                        }
+                        pieThreeChart[i] = dpth;
+
+                    })
+                    // console.log(pieThreeChart);
+
+                    for (var i = 0; i < len; i++) {
+                        var date = response[i].date;
+                        dateArray[i] = date;
+
+                        var excellent = response[i].good;
+                        excellentArray[i] = excellent;
+
+                        var normal = response[i].normal;
+                        normalArray[i] = normal;
+
+                        var bad = response[i].bad;
+                        badArray[i] = bad;
+
+
+
+
+                        var line = {
+                            title: {
+
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                data: ['Excellent', 'Normal', 'Bad']
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            xAxis: {
+                                text: 'Months',
+                                type: 'category',
+                                data: dateArray,
+                                boundaryGap: false,
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                    color: 'red',
+                                    name: 'Bad',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: badArray
+                                },
+
+                                {
+                                    color: 'gray',
+                                    name: 'Normal',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: normalArray
+                                },
+                                {
+                                    color: 'green',
+                                    name: 'Excellent',
+                                    type: 'line',
+                                    label: {
+                                        show: true,
+                                        position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    stack: 'Total',
+                                    data: excellentArray
+                                },
+
+                            ]
+                        };
+                        var bar = {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            },
+                            legend: {},
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            xAxis: [{
+                                type: 'category',
+                                data: dateArray
+                            }],
+                            yAxis: [{
+                                type: 'value'
+                            }],
+                            series: [{
+                                    name: 'Excellent',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    color: 'green',
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: excellentArray
+                                },
+                                {
+                                    name: 'Normal',
+                                    color: 'gray',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: normalArray
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'bar',
+                                    label: {
+                                        show: true,
+                                        //  position: 'middle',
+                                        //  formatter: '{b}: {c}'
+                                    },
+                                    color: 'red',
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: badArray
+                                },
+                            ]
+                        };
+                        var pie = {
+                            title: [{
+                                    text: 'Emoji For Daily',
+                                    subtext: 'Pie Data',
+                                    left: 'center'
+                                },
+                                {
+                                    subtext: 'Excellent',
+                                    left: '23%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Normal',
+                                    left: '50%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Bad',
+                                    right: '20%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            legend: {
+                                bottom: 10,
+                                left: 'center'
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            series: [{
+
+                                    name: 'Excellent',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '25%'],
+                                    datasetIndex: 1,
+                                    data: pieOneChart
+                                },
+                                {
+                                    name: 'Normal',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '50%'],
+                                    datasetIndex: 2,
+
+                                    data: pieTwoChart
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'pie',
+                                    label: {
+                                        show: true,
+                                        position: 'inside',
+                                        formatter: '{c}'
+
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '75%'],
+                                    datasetIndex: 3,
+                                    data: pieThreeChart
+                                },
+
+                            ],
+                            media: [{
+                                    query: {
+                                        minAspectRatio: 1
+                                    },
+
+                                    option: {
+                                        series: [{
+                                                center: ['25%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['75%', '50%']
+                                            },
+                                        ]
+                                    }
+                                },
+                                {
+                                    option: {
+                                        series: [{
+                                                center: ['50%', '25%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '75%']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        };
+                        var donut = {
+                            title: [{
+                                    text: 'Emoji For Daily',
+                                    subtext: 'Doughnut Chart Data',
+                                    left: 'center'
+                                },
+                                {
+                                    subtext: 'Excellent',
+                                    left: '23%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Normal',
+                                    left: '50%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                },
+                                {
+                                    subtext: 'Bad',
+                                    right: '20%',
+                                    top: '65%',
+                                    textAlign: 'center'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            legend: {
+                                bottom: 10,
+                                left: 'center'
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            series: [{
+                                    name: 'Excellent',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '25%'],
+                                    datasetIndex: 1,
+                                    data: pieOneChart,
+                                },
+                                {
+                                    name: 'Normal',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '50%'],
+                                    datasetIndex: 2,
+
+                                    data: pieTwoChart,
+                                },
+                                {
+                                    name: 'Bad',
+                                    type: 'pie',
+                                    radius: ['40%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        borderColor: '#fff',
+                                        borderWidth: 2
+                                    },
+                                    label: {
+                                        show: true,
+                                        formatter: '{c}',
+                                        position: 'inside'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '40',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: true
+                                    },
+                                    radius: '30%',
+                                    center: ['50%', '75%'],
+                                    datasetIndex: 3,
+                                    data: pieThreeChart,
+                                }
+                            ],
+                            media: [{
+                                    query: {
+                                        minAspectRatio: 1
+                                    },
+                                    option: {
+                                        series: [{
+                                                center: ['25%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['75%', '50%']
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    option: {
+                                        series: [{
+                                                center: ['50%', '25%']
+                                            },
+                                            {
+                                                center: ['50%', '50%']
+                                            },
+                                            {
+                                                center: ['50%', '75%']
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        };
+                        
+                        myChart.setOption(line);
+                        // Display the chart using the configuration items and data just specified.
+                        $(document).ready(function() {
+                            // $('#feedback-data').html('');
+                            $('#chartSelect').on('change', function() {
+                                let chartVal = $('#chartSelect').val()
+                                // console.log(chartVal);
+                                // myChart.destory();
+                                if (chartVal === 'line') {
+
+                                    myChart.setOption(line, true);
+
+                                }
+                                if (chartVal === 'bar') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(bar, true);
+
+                                }
+                                if (chartVal === 'pie') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(pie, true);
+                                }
+                                if (chartVal === 'donut') {
+                                    // myChart.setOption(line).destory()
+                                    myChart.setOption(donut, true);
+                                }
+
+                            });
+                        });
+
+                    }
                 }
-                dPieChart[i] = dpo;
-            })
-            console.log(dPieChart);
-            var dPieChartTwo = [];
-            chartTwo.forEach((dpt, i) => {
-                dptwo = {
-                    name: dpt[0],
-                    value: dpt[1]
-                }
-                dPieChartTwo[i] = dptwo;
-            })
-            // console.log(dPieChartTwo);
-
-            var dPieChartThree = [];
-            chartThree.forEach((dph, i) => {
-                dpthree = {
-                    name: dph[0],
-                    value: dph[1]
-                }
-                dPieChartThree[i] = dpthree;
-            })
-            // console.log(dPieChartThree);
-
-
-
-            // Specify the configuration items and data for the chart
-            var line = {
-                title: {
-
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['Excellent', 'Normal', 'Bad']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                xAxis: {
-                    text: 'Months',
-                    type: 'category',
-                    data: dateChange,
-                    boundaryGap: false,
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                        color: 'green',
-                        name: 'Excellent',
-                        type: 'line',
-                        stack: 'Total',
-                        data: changeOne
-                    },
-                    {
-                        color: 'gray',
-                        name: 'Normal',
-                        type: 'line',
-                        stack: 'Total',
-                        data: changeTwo
-                    },
-                    {
-                        color: 'red',
-                        name: 'Bad',
-                        type: 'line',
-                        stack: 'Total',
-                        data: changeThree
-                    },
-                ]
-            };
-
-            var bar = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
-                legend: {},
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: [{
-                    type: 'category',
-                    data: dateChange
-                }],
-                yAxis: [{
-                    type: 'value'
-                }],
-                series: [{
-                        name: 'Excellent',
-                        type: 'bar',
-                        color: 'green',
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: changeOne
-                    },
-                    {
-                        name: 'Normal',
-                        color: 'gray',
-                        type: 'bar',
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: changeTwo
-                    },
-                    {
-                        name: 'Bad',
-                        type: 'bar',
-                        color: 'red',
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: changeThree
-                    },
-                ]
-            };
-
-            var pie = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Pie Data',
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    bottom: 10,
-                    left: 'center'
-                },
-                series: [{
-                        name: 'Excellent',
-                        type: 'pie',
-                        radius: '20%',
-                        center: ['50%', '25%'],
-                        datasetIndex: 1,
-                        data: dPieChart,
-                    },
-                    {
-                        name: 'Normal',
-                        type: 'pie',
-                        radius: '20%',
-                        center: ['50%', '50%'],
-                        datasetIndex: 2,
-
-                        data: dPieChartTwo,
-                    },
-                    {
-                        name: 'Bad',
-                        type: 'pie',
-                        radius: '20%',
-                        center: ['50%', '75%'],
-                        datasetIndex: 3,
-                        data: dPieChartThree,
-                    },
-
-                ],
-                media: [{
-                        query: {
-                            minAspectRatio: 1
-                        },
-                        option: {
-                            series: [{
-                                    center: ['25%', '50%']
-                                },
-                                {
-                                    center: ['50%', '50%']
-                                },
-                                {
-                                    center: ['75%', '50%']
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        option: {
-                            series: [{
-                                    center: ['50%', '25%']
-                                },
-                                {
-                                    center: ['50%', '50%']
-                                },
-                                {
-                                    center: ['50%', '75%']
-                                }
-                            ]
-                        }
-                    }
-                ]
-            };
-
-            var donut = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Doughnut Data',
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    bottom: 10,
-                    left: 'center'
-                },
-                series: [{
-                        name: 'Excellent',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 10,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: '40',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        radius: '30%',
-                        center: ['50%', '25%'],
-                        datasetIndex: 1,
-                        data: dPieChart,
-                    },
-                    {
-                        name: 'Normal',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 10,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: '40',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        radius: '30%',
-                        center: ['50%', '50%'],
-                        datasetIndex: 2,
-
-                        data: dPieChartTwo,
-                    },
-                    {
-                        name: 'Bad',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 10,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: '40',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        radius: '30%',
-                        center: ['50%', '75%'],
-                        datasetIndex: 3,
-                        data: dPieChartThree,
-                    }
-                ],
-                media: [{
-                        query: {
-                            minAspectRatio: 1
-                        },
-                        option: {
-                            series: [{
-                                    center: ['25%', '50%']
-                                },
-                                {
-                                    center: ['50%', '50%']
-                                },
-                                {
-                                    center: ['75%', '50%']
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        option: {
-                            series: [{
-                                    center: ['50%', '25%']
-                                },
-                                {
-                                    center: ['50%', '50%']
-                                },
-                                {
-                                    center: ['50%', '75%']
-                                }
-                            ]
-                        }
-                    }
-                ]
-            };
-            myChart.setOption(line);
-            // Display the chart using the configuration items and data just specified.
-            $(document).ready(function() {
-                // $('#feedback-data').html('');
-                $('#chartSelect').on('change', function() {
-                    let chartVal = $('#chartSelect').val()
-                    // console.log(chartVal);
-                    // myChart.destory();
-                    if (chartVal === 'line') {
-
-                        myChart.setOption(line, true);
-
-                    }
-                    if (chartVal === 'bar') {
-                        // myChart.setOption(line).destory()
-                        myChart.setOption(bar, true);
-
-                    }
-                    if (chartVal === 'pie') {
-                        // myChart.setOption(line).destory()
-                        myChart.setOption(pie, true);
-                    }
-                    if (chartVal === 'donut') {
-                        // myChart.setOption(line).destory()
-                        myChart.setOption(donut, true);
-                    }
-
-                });
             });
+        }
+
+        function dailyChart() {
+            
+            var myChart = echarts.init(document.getElementById('feedback-data'));
+                // Initialize the echarts instance based on the prepared
+                $('#dailyToYMVal').val('');
+                $('#dailyToYMValTo').val('');
+                var myChart = echarts.init(document.getElementById('feedback-data'));
+                let chartOne = @php echo $DaliyChartOne; @endphp;
+                let chartTwo = @php echo $DaliyChartTwo; @endphp;
+                let chartThree = @php echo $DaliyChartThree; @endphp;
+                let date = @php echo $date; @endphp;
+                let dateChange = Object.values(date);
+                let changeOne = Object.values(chartOne);
+                let changeTwo = Object.values(chartTwo);
+                let changeThree = Object.values(chartThree);
+                console.log(changeOne);
+
+                var dPieChart = [];
+                chartOne.forEach((dp, i) => {
+                    dpo = {
+                        name: dp[0],
+                        value: dp[1]
+                    }
+                    dPieChart[i] = dpo;
+                })
+                console.log(dPieChart);
+                var dPieChartTwo = [];
+                chartTwo.forEach((dpt, i) => {
+                    dptwo = {
+                        name: dpt[0],
+                        value: dpt[1]
+                    }
+                    dPieChartTwo[i] = dptwo;
+                })
+                // console.log(dPieChartTwo);
+
+                var dPieChartThree = [];
+                chartThree.forEach((dph, i) => {
+                    dpthree = {
+                        name: dph[0],
+                        value: dph[1]
+                    }
+                    dPieChartThree[i] = dpthree;
+                })
+                console.log(dPieChartThree);
+
+
+
+                // Specify the configuration items and data
+                // for the chart
+                var line = {
+                    title: {
+
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: ['Excellent', 'Normal', 'Bad']
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    xAxis: {
+                        text: 'Months',
+                        type: 'category',
+                        data: dateChange,
+                        boundaryGap: false,
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            color: 'red',
+                            name: 'Bad',
+                            type: 'line',
+                            label: {
+                                show: true,
+                                position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            stack: 'Total',
+                            data: changeThree
+                        },
+                        {
+                            color: 'gray',
+                            name: 'Normal',
+                            type: 'line',
+                            label: {
+                                show: true,
+                                position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            stack: 'Total',
+                            data: changeTwo
+                        },
+                        {
+                            color: 'green',
+                            name: 'Excellent',
+                            type: 'line',
+                            label: {
+                                show: true,
+                                position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            stack: 'Total',
+                            data: changeOne
+                        },
+                    ]
+                };
+
+                var bar = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {},
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    xAxis: [{
+                        type: 'category',
+                        data: dateChange
+                    }],
+                    yAxis: [{
+                        type: 'value'
+                    }],
+                    series: [{
+                            name: 'Excellent',
+                            type: 'bar',
+                            label: {
+                                show: true,
+                                //  position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            color: 'green',
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: changeOne
+                        },
+                        {
+                            name: 'Normal',
+                            color: 'gray',
+                            type: 'bar',
+                            label: {
+                                show: true,
+                                //  position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: changeTwo
+                        },
+                        {
+                            name: 'Bad',
+                            type: 'bar',
+                            label: {
+                                show: true,
+                                //  position: 'middle',
+                                //  formatter: '{b}: {c}'
+                            },
+                            color: 'red',
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: changeThree
+                        },
+                    ]
+                };
+
+                var pie = {
+                    title: [{
+                            text: 'Emoji For Daily',
+                            subtext: 'Pie Data',
+                            left: 'center'
+                        },
+                        {
+                            subtext: 'Excellent',
+                            left: '23%',
+                            top: '70%',
+                            textAlign: 'center'
+                        },
+                        {
+                            subtext: 'Normal',
+                            left: '50%',
+                            top: '70%',
+                            textAlign: 'center'
+                        },
+                        {
+                            subtext: 'Bad',
+                            right: '20%',
+                            top: '70%',
+                            textAlign: 'center'
+                        }
+                    ],
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        bottom: 10,
+                        left: 'center'
+                    },
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    series: [{
+
+                            name: 'Excellent',
+                            type: 'pie',
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: '{c}'
+
+                            },
+                            radius: '30%',
+                            center: ['50%', '25%'],
+                            datasetIndex: 1,
+                            data: dPieChart,
+                        },
+                        {
+                            name: 'Normal',
+                            type: 'pie',
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: '{c}'
+
+                            },
+                            radius: '30%',
+                            center: ['50%', '50%'],
+                            datasetIndex: 2,
+
+                            data: dPieChartTwo,
+                        },
+                        {
+                            name: 'Bad',
+                            type: 'pie',
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: '{c}'
+
+                            },
+                            radius: '30%',
+                            center: ['50%', '75%'],
+                            datasetIndex: 3,
+                            data: dPieChartThree,
+                        },
+
+                    ],
+                    media: [{
+                            query: {
+                                minAspectRatio: 1
+                            },
+
+                            option: {
+                                series: [{
+                                        center: ['25%', '50%']
+                                    },
+                                    {
+                                        center: ['50%', '50%']
+                                    },
+                                    {
+                                        center: ['75%', '50%']
+                                    },
+                                ]
+                            }
+                        },
+                        {
+                            option: {
+                                series: [{
+                                        center: ['50%', '25%']
+                                    },
+                                    {
+                                        center: ['50%', '50%']
+                                    },
+                                    {
+                                        center: ['50%', '75%']
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                };
+
+                var donut = {
+                    title: [{
+                            text: 'Emoji For Daily',
+                            subtext: 'Doughnut Chart Data',
+                            left: 'center'
+                        },
+                        {
+                            subtext: 'Excellent',
+                            left: '23%',
+                            top: '70%',
+                            textAlign: 'center'
+                        },
+                        {
+                            subtext: 'Normal',
+                            left: '50%',
+                            top: '70%',
+                            textAlign: 'center'
+                        },
+                        {
+                            subtext: 'Bad',
+                            right: '20%',
+                            top: '70%',
+                            textAlign: 'center'
+                        }
+                    ],
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        bottom: 10,
+                        left: 'center'
+                    },
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    series: [{
+                            name: 'Excellent',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{c}',
+                                position: 'inside'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '40',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: true
+                            },
+                            radius: '30%',
+                            center: ['50%', '25%'],
+                            datasetIndex: 1,
+                            data: dPieChart,
+                        },
+                        {
+                            name: 'Normal',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{c}',
+                                position: 'inside'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '40',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: true
+                            },
+                            radius: '30%',
+                            center: ['50%', '50%'],
+                            datasetIndex: 2,
+
+                            data: dPieChartTwo,
+                        },
+                        {
+                            name: 'Bad',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{c}',
+                                position: 'inside'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '40',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: true
+                            },
+                            radius: '30%',
+                            center: ['50%', '75%'],
+                            datasetIndex: 3,
+                            data: dPieChartThree,
+                        }
+                    ],
+                    media: [{
+                            query: {
+                                minAspectRatio: 1
+                            },
+                            option: {
+                                series: [{
+                                        center: ['25%', '50%']
+                                    },
+                                    {
+                                        center: ['50%', '50%']
+                                    },
+                                    {
+                                        center: ['75%', '50%']
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            option: {
+                                series: [{
+                                        center: ['50%', '25%']
+                                    },
+                                    {
+                                        center: ['50%', '50%']
+                                    },
+                                    {
+                                        center: ['50%', '75%']
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                };
+                myChart.setOption(line);
+                // Display the chart using the configuration items and data just specified.
+                $(document).ready(function() {
+                    // $('#feedback-data').html('');
+                    $('#chartSelect').on('change', function() {
+                        let chartVal = $('#chartSelect').val()
+                        // console.log(chartVal);
+                        // myChart.destory();
+                        if (chartVal === 'line') {
+
+                            myChart.setOption(line, true);
+
+                        }
+                        if (chartVal === 'bar') {
+                            // myChart.setOption(line).destory()
+                            myChart.setOption(bar, true);
+
+                        }
+                        if (chartVal === 'pie') {
+                            // myChart.setOption(line).destory()
+                            myChart.setOption(pie, true);
+                        }
+                        if (chartVal === 'donut') {
+                            // myChart.setOption(line).destory()
+                            myChart.setOption(donut, true);
+                        }
+
+                    });
+                });
 
         }
 
@@ -1056,7 +2343,7 @@
             let changeOne = Object.values(chartOne);
             let changeTwo = Object.values(chartTwo);
             let changeThree = Object.values(chartThree);
-        
+
             console.log(changeOne);
 
             var dPieChart = [];
@@ -1121,26 +2408,42 @@
                 yAxis: {
                     type: 'value'
                 },
-                series: [{
-                        color: 'green',
-                        name: 'Excellent',
+                series: [
+                    {
+                        color: 'red',
+                        name: 'Bad',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
-                        data: changeOne
+                        data: changeThree
                     },
                     {
                         color: 'gray',
                         name: 'Normal',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
                         data: changeTwo
                     },
                     {
-                        color: 'red',
-                        name: 'Bad',
+                        color: 'green',
+                        name: 'Excellent',
                         type: 'line',
+                        label: {
+                            show: true,
+                            position: 'middle',
+                            //  formatter: '{b}: {c}'
+                        },
                         stack: 'Total',
-                        data: changeThree
+                        data: changeOne
                     },
                 ]
             };
@@ -1159,6 +2462,11 @@
                     bottom: '3%',
                     containLabel: true
                 },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
                 xAxis: [{
                     type: 'category',
                     data: dateChange
@@ -1169,6 +2477,11 @@
                 series: [{
                         name: 'Excellent',
                         type: 'bar',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            //  formatter: '{b}: {c}'
+                        },
                         color: 'green',
                         emphasis: {
                             focus: 'series'
@@ -1178,6 +2491,11 @@
                     {
                         name: 'Normal',
                         color: 'gray',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            //  formatter: '{b}: {c}'
+                        },
                         type: 'bar',
                         emphasis: {
                             focus: 'series'
@@ -1187,6 +2505,11 @@
                     {
                         name: 'Bad',
                         type: 'bar',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            //  formatter: '{b}: {c}'
+                        },
                         color: 'red',
                         emphasis: {
                             focus: 'series'
@@ -1197,11 +2520,30 @@
             };
 
             var pie = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Pie Data',
-                    left: 'center'
-                },
+                title: [{
+                        text: 'Emoji For Yearly',
+                        subtext: 'Pie Data',
+                        left: 'center'
+                    },
+                    {
+                        subtext: 'Excellent',
+                        left: '23%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Normal',
+                        left: '50%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Bad',
+                        right: '20%',
+                        top: '70%',
+                        textAlign: 'center'
+                    }
+                ],
                 tooltip: {
                     trigger: 'item'
                 },
@@ -1209,9 +2551,20 @@
                     bottom: 10,
                     left: 'center'
                 },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
                 series: [{
                         name: 'Excellent',
                         type: 'pie',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
+
+                        },
                         radius: '20%',
                         center: ['50%', '25%'],
                         datasetIndex: 1,
@@ -1220,6 +2573,12 @@
                     {
                         name: 'Normal',
                         type: 'pie',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
+
+                        },
                         radius: '20%',
                         center: ['50%', '50%'],
                         datasetIndex: 2,
@@ -1229,6 +2588,12 @@
                     {
                         name: 'Bad',
                         type: 'pie',
+                        label: {
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
+
+                        },
                         radius: '20%',
                         center: ['50%', '75%'],
                         datasetIndex: 3,
@@ -1271,17 +2636,41 @@
             };
 
             var donut = {
-                title: {
-                    text: 'Emoji Of Monthly',
-                    subtext: 'Doughnut Data',
-                    left: 'center'
-                },
+                title: [{
+                        text: 'Emoji For Yearly',
+                        subtext: 'Doughnut Chart Data',
+                        left: 'center'
+                    },
+                    {
+                        subtext: 'Excellent',
+                        left: '23%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Normal',
+                        left: '50%',
+                        top: '70%',
+                        textAlign: 'center'
+                    },
+                    {
+                        subtext: 'Bad',
+                        right: '20%',
+                        top: '70%',
+                        textAlign: 'center'
+                    }
+                ],
                 tooltip: {
                     trigger: 'item'
                 },
                 legend: {
                     bottom: 10,
                     left: 'center'
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
                 },
                 series: [{
                         name: 'Excellent',
@@ -1294,8 +2683,9 @@
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
                         },
                         emphasis: {
                             label: {
@@ -1323,8 +2713,9 @@
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
                         },
                         emphasis: {
                             label: {
@@ -1353,8 +2744,9 @@
                             borderWidth: 2
                         },
                         label: {
-                            show: false,
-                            position: 'center'
+                            show: true,
+                            position: 'inside',
+                            formatter: '{c}'
                         },
                         emphasis: {
                             label: {
@@ -1438,16 +2830,16 @@
         }
 
         dailyChart()
-        
+
         document.getElementById("ex2-tab-1").addEventListener("click", () => {
             dailyChart()
-            
+
         });
 
         document.getElementById("ex2-tab-2").addEventListener("click", () => {
             montlyChart()
             $('#chartSelect').val('line')
-           
+
         });
 
         document.getElementById("ex2-tab-3").addEventListener("click", () => {
@@ -1461,7 +2853,7 @@
         $(document).ready(function() {
 
 
-            // For Daily Search
+            // For Monthly Search
             $(document).on('submit', '#Montserchform', function(e) {
                 e.preventDefault()
                 var yearVal = $('#year').val()
@@ -1490,12 +2882,12 @@
 
                                 output += `
                                     <tr>
-                                       
+
                                             <td>${value.date}</td>
                                             <td>${value.good}</td>
                                             <td>${value.normal}</td>
                                             <td>${value.bad}</td>
-                                        
+
                                     </tr>
                                 `
                             });
@@ -1507,27 +2899,31 @@
 
             });
 
-            //For Monthly Search
+            //For Daily Search
             $(document).on('submit', '#dailySearchForm', function(e) {
                 e.preventDefault()
                 var dailyToYMVal = $('#dailyToYMVal').val();
-                // console.log(dailyToYMVal);
-                const yearMonthArray = dailyToYMVal.split("-");
+                var dailyToYMValStr = dailyToYMVal.toString()
+                // console.log(dailyToYMValStr);
+                var dailyToYMValTo = $('#dailyToYMValTo').val();
+                var dailyToYMValToStr = dailyToYMValTo.toString();
+                // console.log(dailyToYMValTo);
+
+                // const yearMonthArray = dailyToYMVal.split("-");
                 // console.log(yearMonthArray);
                 $('#dailyBody').html()
-
                 $.ajax({
                     type: "GET",
                     url: "{{ route('daily.search') }}",
                     data: {
-                        'yearMonthArray': yearMonthArray
+                        'dailyToYMValStr': dailyToYMValStr,
+                        'dailyToYMValToStr': dailyToYMValToStr
                     },
-                    dataType: "json",
                     success: function(response) {
-                        // console.log(response)
+                        // console.log(response);
                         if (response.length == 0) {
                             var no_result = `
-                                <h3 class= "text-center text-danger my-3" style="margin-left:150px; position: absolute" id="Nodata">Data Not Found</h3>
+                                <h3 class= "text-center text-danger my-3" style="margin-left:150px; position: absolute" id="">Data Not Found</h3>
                             `
                             $('#dailyBody').html(no_result);
                             // console.log('No');
@@ -1535,16 +2931,15 @@
                         } else {
                             var output = " ";
                             $.each(response, function(key, value) {
-                                // inportact
-                                // const dateDayname = new Date(value.date);
-                                // const day = dateDayname.getDate()
+
                                 output += `
-                                
                                     <tr>
-                                        <td>${value.date}</td>
-                                        <td>${value.good}</td>
-                                        <td>${value.normal}</td>
-                                        <td>${value.bad}</td>
+
+                                            <td>${value.date}</td>
+                                            <td>${value.good}</td>
+                                            <td>${value.normal}</td>
+                                            <td>${value.bad}</td>
+
                                     </tr>
                                 `
                             });
@@ -1552,6 +2947,8 @@
                         }
                     }
                 });
+
+
 
             });
 
@@ -1584,7 +2981,7 @@
                                 // const dateDayname = new Date(value.date);
                                 // const day = dateDayname.getDate()
                                 output += `
-                                
+
                                     <tr>
                                         <td>${value.date}</td>
                                         <td>${value.good}</td>

@@ -19,8 +19,8 @@ class NotiAlertController extends Controller
     {
         return view('web-page-noti');
     }
-    
-    public function webview() 
+
+    public function webview()
     {
         return view('web-view');
     }
@@ -39,10 +39,10 @@ class NotiAlertController extends Controller
 
     // For Feedback count
     public function showData()
-    { 
+    {
         /* For Monthly All Chart */
         // For Chart Data
-        
+
         $feedbackChartOne = Notialert::select(DB::raw("COUNT(*) as count"))
              ->where('feedback_number', '=', 1)
             ->whereYear("created_at", date("Y"))
@@ -61,9 +61,9 @@ class NotiAlertController extends Controller
             ->pluck('count');
         // dd($feedbackChartOne);
 
-        $monthlyGood = DB::select("select month(created_at)name, monthname(created_at) name, 
+        $monthlyGood = DB::select("select month(created_at)name, monthname(created_at) name,
         count(case when feedback_number = 1 then 1 end) value
-        from notialerts 
+        from notialerts
         group by month(created_at), monthname(created_at)
         order by month(created_at)");
         $mg = [];
@@ -76,9 +76,9 @@ class NotiAlertController extends Controller
         $monthlyGood = collect($mg);
 
 
-        $monthlyNormal = DB::select("select month(created_at)name, monthname(created_at) name, 
+        $monthlyNormal = DB::select("select month(created_at)name, monthname(created_at) name,
         count(case when feedback_number = 2 then 1 end) value
-        from notialerts 
+        from notialerts
         group by month(created_at), monthname(created_at)
         order by month(created_at)");
         $mn = [];
@@ -93,9 +93,9 @@ class NotiAlertController extends Controller
 
         // dd($monthlyNormal);
 
-        $monthlyBad = DB::select("select month(created_at)name, monthname(created_at) name, 
+        $monthlyBad = DB::select("select month(created_at)name, monthname(created_at) name,
         count(case when feedback_number = 3 then 1 end) value
-        from notialerts 
+        from notialerts
         group by month(created_at), monthname(created_at)
         order by month(created_at)");
         $mb = [];
@@ -113,7 +113,7 @@ class NotiAlertController extends Controller
         $mt = Carbon::now()->month;
 
         $date = DB::select("select cast(created_at as date) date
-        from notialerts 
+        from notialerts
         where month(created_at) = $mt  AND year(created_at) = $yr
         group by cast(created_at as date)");
         // dd($date);
@@ -121,17 +121,17 @@ class NotiAlertController extends Controller
         foreach ($date  as $key => $value) {
             $da_sub = [];
             $da_sub[0] = $value->date;
-            
+
             $da[] = $da_sub;
         }
         $date = collect($da);
 
         // dd($date);
-        
-        
-        $DaliyChartOne = DB::select("select cast(created_at as date) date, 
-        count(case when feedback_number = 1 then 1 end) good 
-        from notialerts where month(created_at) = $mt AND year(created_at) = $yr 
+
+
+        $DaliyChartOne = DB::select("select cast(created_at as date) date,
+        count(case when feedback_number = 1 then 1 end) good
+        from notialerts where month(created_at) = $mt AND year(created_at) = $yr
         group by cast(created_at as date);");
         $done = [];
         foreach ($DaliyChartOne as $key => $value) {
@@ -144,8 +144,8 @@ class NotiAlertController extends Controller
 
         // dd($DaliyChartOne);
 
-        $DaliyChartTwo =  DB::select("select cast(created_at as date) date, 
-        count(case when feedback_number = 2 then 1 end) normal 
+        $DaliyChartTwo =  DB::select("select cast(created_at as date) date,
+        count(case when feedback_number = 2 then 1 end) normal
         from notialerts where month(created_at) = $mt AND year(created_at) = $yr
         group by cast(created_at as date);");
         $dtwo = [];
@@ -159,8 +159,8 @@ class NotiAlertController extends Controller
         // dd($DaliyChartTwo);
 
 
-        $DaliyChartThree =  DB::select("select cast(created_at as date) date, 
-        count(case when feedback_number = 3 then 1 end) bad 
+        $DaliyChartThree =  DB::select("select cast(created_at as date) date,
+        count(case when feedback_number = 3 then 1 end) bad
         from notialerts where month(created_at) = $mt AND year(created_at) = $yr
         group by cast(created_at as date);");
             // dd($DaliyChartThree);
@@ -181,14 +181,14 @@ class NotiAlertController extends Controller
         foreach ($yearDate  as $key => $value) {
             $y_sub = [];
             $y_sub[0] = $value->date;
-            
+
             $y[] = $y_sub;
         }
         $yearDate = collect($y);
         // dd($yearDate);
 
-        $yearlyChartOne = DB::select('select year(created_at) date, 
-        count(case when feedback_number = 1 then 1 end) good 
+        $yearlyChartOne = DB::select('select year(created_at) date,
+        count(case when feedback_number = 1 then 1 end) good
         from notialerts group by year(created_at);');
         $yone= []; // outer array
         foreach ($yearlyChartOne as $key => $value){
@@ -200,7 +200,7 @@ class NotiAlertController extends Controller
         $yearlyChartOne = collect($yone);
         // dd($yearlyChartOne);
         // dd($yearlyChartOne);
-        $yearlyCharTwo = DB::select('select year(created_at) date, 
+        $yearlyCharTwo = DB::select('select year(created_at) date,
         count(case when feedback_number = 2 then 1 end) normal
         from notialerts group by year(created_at);');
         $ytwo= []; // outer array
@@ -212,7 +212,7 @@ class NotiAlertController extends Controller
         }
         $yearlyCharTwo = collect($ytwo);
 
-        $yearlyCharThree = DB::select('select year(created_at) date, 
+        $yearlyCharThree = DB::select('select year(created_at) date,
         count(case when feedback_number = 3 then 1 end) bad
         from notialerts group by year(created_at);');
         $ythree= []; // outer array
@@ -224,8 +224,8 @@ class NotiAlertController extends Controller
         }
         $yearlyCharThree = collect($ythree);
 
-        $yearlyChartOne = DB::select('select year(created_at) date, 
-        count(case when feedback_number = 1 then 1 end) good 
+        $yearlyChartOne = DB::select('select year(created_at) date,
+        count(case when feedback_number = 1 then 1 end) good
         from notialerts group by year(created_at);');
         $yone= []; // outer array
         foreach ($yearlyChartOne as $key => $value){
@@ -236,7 +236,7 @@ class NotiAlertController extends Controller
         }
         $yearlyChartOne = collect($yone);
 
-        $yearlyPieCharOne = DB::select('select year(created_at) date, 
+        $yearlyPieCharOne = DB::select('select year(created_at) date,
         count(case when feedback_number = 1 then 1 end) good
         from notialerts group by year(created_at);');
         $yPieOne= []; // outer array
@@ -249,7 +249,7 @@ class NotiAlertController extends Controller
         $yearlyPieCharOne = collect($yPieOne);
         // dd($yearlyPieCharOne);
 
-        $yearlyPieCharTwo = DB::select('select year(created_at) date, 
+        $yearlyPieCharTwo = DB::select('select year(created_at) date,
         count(case when feedback_number = 2 then 1 end) normal
         from notialerts group by year(created_at);');
         $yPieTwo= []; // outer array
@@ -261,8 +261,8 @@ class NotiAlertController extends Controller
         }
         $yearlyPieCharTwo = collect($yPieTwo);
         // dd($yearlyPieCharTwo);
-        
-        $yearlyPieCharThree = DB::select('select year(created_at) date, 
+
+        $yearlyPieCharThree = DB::select('select year(created_at) date,
         count(case when feedback_number = 3 then 1 end) bad
         from notialerts group by year(created_at);');
         $yPieThree= []; // outer array
@@ -273,28 +273,28 @@ class NotiAlertController extends Controller
             $yPieThree[] = $yPieThree_sub;
         }
         $yearlyPieCharThree = collect($yPieThree);
-       
 
 
 
-        $yearly = DB::select('select year(created_at) date, 
-        count(case when feedback_number = 1 then 1 end) good, 
-        count(case when feedback_number = 2 then 1 end) normal, 
+
+        $yearly = DB::select('select year(created_at) date,
+        count(case when feedback_number = 1 then 1 end) good,
+        count(case when feedback_number = 2 then 1 end) normal,
         count(case when feedback_number = 3 then 1 end) bad
         from notialerts group by year(created_at)');
-        
-        $monthly = DB::select('select month(created_at) date, monthname(created_at) date, 
-        count(case when feedback_number = 1 then 1 end) good, 
-        count(case when feedback_number = 2 then 1 end) normal, 
-        count(case when feedback_number = 3 then 1 end) bad 
-        from notialerts 
+
+        $monthly = DB::select('select month(created_at) date, monthname(created_at) date,
+        count(case when feedback_number = 1 then 1 end) good,
+        count(case when feedback_number = 2 then 1 end) normal,
+        count(case when feedback_number = 3 then 1 end) bad
+        from notialerts
         group by month(created_at), monthname(created_at)
         order by month(created_at)');
 
-        $dailies = DB::select('select cast(created_at as date) date, 
-        count(case when feedback_number = 1 then 1 end) good, 
-        count(case when feedback_number = 2 then 1 end) normal, 
-        count(case when feedback_number = 3 then 1 end) bad 
+        $dailies = DB::select('select cast(created_at as date) date,
+        count(case when feedback_number = 1 then 1 end) good,
+        count(case when feedback_number = 2 then 1 end) normal,
+        count(case when feedback_number = 3 then 1 end) bad
         from notialerts group by cast(created_at as date)');
 
         return view('web-count-noti', compact(
@@ -321,32 +321,80 @@ class NotiAlertController extends Controller
 
         ));
     }
+
     public function fromtoSearch(Request $request)
     {
-        $monthlySearch = DB::select("select month(created_at) date, monthname(created_at) date, 
-            count(case when feedback_number = 1 then 1 end) good, 
-            count(case when feedback_number = 2 then 1 end) normal, 
-            count(case when feedback_number = 3 then 1 end) bad 
-            
-            from notialerts 
+        $monthlySearch = DB::select("select month(created_at) date, monthname(created_at) date,
+            count(case when feedback_number = 1 then 1 end) good,
+            count(case when feedback_number = 2 then 1 end) normal,
+            count(case when feedback_number = 3 then 1 end) bad
+
+            from notialerts
             where year(created_at) = $request->yearVal
             group by month(created_at), monthname(created_at)
             order by month(created_at)");
         return response()->json($monthlySearch);
     }
 
+    public function monthlySearchChart(Request $request){
+        $monthYear = $request->date;
+        $monthlyChart = DB::select("
+        select month(created_at) date, monthname(created_at) date,
+            count(case when feedback_number = 1 then 1 end) good,
+            count(case when feedback_number = 2 then 1 end) normal,
+            count(case when feedback_number = 3 then 1 end) bad
+
+            from notialerts
+            where year(created_at) = $monthYear
+            group by month(created_at), monthname(created_at)
+            order by month(created_at)
+        ");
+        $monthC = collect($monthlyChart);
+        return response()->json($monthC);
+    }
+
+
+
+    public function dailySearchChart(Request $request){
+        $fromDate = $request->fromDate;
+        $toDate= $request->toDate;
+        $diChart = DB::select("
+            select cast(created_at as date) date,
+            count(case when feedback_number = 1 then 1 end) good,
+            count(case when feedback_number = 2 then 1 end) normal,
+            count(case when feedback_number = 3 then 1 end) bad
+            from notialerts
+            where date(created_at) >= '$fromDate'  AND date(created_at) <= '$toDate'
+            group by cast(created_at as date)
+        ");
+        // $dChart = [];
+        // foreach ($diChart as $key => $value) {
+        //     $done_sub = [];
+        //     $done_sub[0] = $value->date;
+        //     $done_sub[1] = $value->good;
+        //     $done_sub[2] = $value->normal;
+        //     $done_sub[3] = $value->bad;
+        //     $done[] = $done_sub;
+        // }
+        $dCollect = collect($diChart);
+        return response()->json($dCollect);
+    }
+
     public function dailySearch(Request $request)
     {
-        $year = $request->yearMonthArray[0];
-        $month = $request->yearMonthArray[1];
+        $formDateint = $request->dailyToYMValStr;
+        $toDateint = $request->dailyToYMValToStr;
+        // $formDatestr = (string) $formDateint;
+        // $toDateint = (string) $toDateint;
+
         $yearAndMonth = DB::select("
-            select cast(created_at as date) date, 
-            count(case when feedback_number = 1 then 1 end) good, 
-            count(case when feedback_number = 2 then 1 end) normal, 
-            count(case when feedback_number = 3 then 1 end) bad 
-            from notialerts 
-            where month(created_at) = $month AND year(created_at) = $year
-            group by cast(created_at as date);
+            select cast(created_at as date) date,
+            count(case when feedback_number = 1 then 1 end) good,
+            count(case when feedback_number = 2 then 1 end) normal,
+            count(case when feedback_number = 3 then 1 end) bad
+            from notialerts
+            where date(created_at) >= '$formDateint'  AND date(created_at) <= '$toDateint'
+            group by cast(created_at as date)
         ");
 
         return response()->json($yearAndMonth);
@@ -354,11 +402,11 @@ class NotiAlertController extends Controller
 
     public function yearSearch(Request $request){
 
-        $yearlySearch = DB::select("select year(created_at) date, 
-        count(case when feedback_number = 1 then 1 end) good, 
-        count(case when feedback_number = 2 then 1 end) normal, 
+        $yearlySearch = DB::select("select year(created_at) date,
+        count(case when feedback_number = 1 then 1 end) good,
+        count(case when feedback_number = 2 then 1 end) normal,
         count(case when feedback_number = 3 then 1 end) bad
-        from notialerts 
+        from notialerts
         where year (created_at) = $request->yearlySearchVal
         group by year(created_at)");
         return response()->json($yearlySearch);
@@ -368,17 +416,17 @@ class NotiAlertController extends Controller
     public function exportExcel(Request $request)
     {
         $requestYear = $request['year'];
-        return Excel::download(new UsersExport($requestYear), 'feed_back.xlsx');
+        return Excel::download(new UsersExport($requestYear), 'feed_back_monthly.xlsx');
     }
 
     public function dailyExcel(Request $req)
     {
-        $reqmonth = $req['month'];
-        $reqyear = $req['year'];
+        $reqFromDate = $req['fromDate'];
+        $reqToDate = $req['toDate'];
         // DailyExport::$month = $reqmonth;
         // DailyExport::$year = $reqyear;
         // dd(DailyExport::$month, DailyExport::$year);
-        return Excel::download(new DailyExport($reqmonth, $reqyear), 'feed_back_daily'.$reqmonth.'.xlsx');
+        return Excel::download(new DailyExport($reqFromDate, $reqToDate), 'feed_back_daily.xlsx');
     }
 
     public function yearlyExcel(Request $request)

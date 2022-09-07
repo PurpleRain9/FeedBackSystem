@@ -37,7 +37,7 @@ class YearlyExport implements FromCollection, WithHeadings, WithEvents,WithStric
     }
     public function headings() :array
     {
-        return ["Year", "Excellent", "Normal","Bad"];
+        return[["Yearly feedback reprot"],["Year", "Excellent", "Normal","Bad"]];
     }
 
     public function registerEvents(): array
@@ -45,11 +45,31 @@ class YearlyExport implements FromCollection, WithHeadings, WithEvents,WithStric
         return [
             AfterSheet::class    => function(AfterSheet $event) {
                 $event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(20);
-                $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(30);
+                $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
+                $event->sheet->mergeCells('A1:D1');
+                // $sheet->setBorder('A1:D1', 'thin');
                 $event->sheet->getDelegate()->getStyle('A1:D1')
                                 ->getAlignment()
                                 ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-   
+                $event->sheet->getDelegate()->getStyle('A1:D1')
+                                ->getAlignment()
+                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $event->sheet->getDelegate()->getStyle('A2:D2')
+                                ->getAlignment()
+                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                                
+                 $event->sheet->getDelegate()->getStyle('A1:D1')
+                                ->getFont()
+                                ->setBold(true);
+                $event->sheet->getDelegate()->getStyle('1')->getFont()->setSize(14);
+                 $event->sheet->getStyle('A1:D3')->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                 ]);
             },
         ];
     }

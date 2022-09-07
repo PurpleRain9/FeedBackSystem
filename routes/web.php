@@ -25,7 +25,8 @@ Route::post('/create-feedback', [NotiAlertController::class, 'create'])->name('f
 Route::get('/feedback-data', [NotiAlertController::class, 'showData'])->name('feedback.datashwow');
 
 // lineChart exal export
-
+Route::get('/monthlySearchChart',[NotiAlertController::class, 'monthlySearchChart'])->name('monthly.searchChart');
+Route::get('/dailySearchChart', [NotiAlertController::class,'dailySearchChart'])->name('daily.searchChart');
 Route::get('/fromtoMonthSearch', [NotiAlertController::class, 'fromtoSearch'])->name('month.search');
 Route::get('/fromtoDailySearch', [NotiAlertController::class, 'dailySearch'])->name('daily.search');
 Route::get('/exportExcel', [NotiAlertController::class, 'exportExcel'])->name('data.exportExcel');

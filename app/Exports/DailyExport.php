@@ -17,19 +17,19 @@ class DailyExport implements FromCollection, WithHeadings , WithEvents, WithStri
     * @return \Illuminate\Support\Collection
     */
 
-    protected $objmonth;
-    protected $objyear;
+    protected $reqFromDate;
+    protected $reqToDate;
 
-    function __construct($reqmonth, $reqyear){
-        $this->objmonth = $reqmonth;
-        $this->objyear = $reqyear;
+    function __construct($reqFrom, $reqTo){
+        $this->reqFromDate = $reqFrom;
+        $this->reqToDate = $reqTo;
         // $this->year = $req->yearMonthArray[1];
     }
 
     public function collection()
     {
-        $month = $this->objmonth;
-        $year = $this->objyear;
+        $formDateint = $this->reqFromDate;
+        $toDateint = $this->reqToDate;
 
         // dd($month, $year);
         $dailyExport = DB::select("
@@ -38,8 +38,8 @@ class DailyExport implements FromCollection, WithHeadings , WithEvents, WithStri
             count(case when feedback_number = 2 then 1 end) normal, 
             count(case when feedback_number = 3 then 1 end) bad 
             from notialerts 
-            where month(created_at) = $month AND year(created_at) = $year
-            group by cast(created_at as date);
+            where date(created_at) >= '$formDateint'  AND date(created_at) <= '$toDateint'
+            group by cast(created_at as date)
         ");
         $dai = collect($dailyExport);
         return $dai;
@@ -49,20 +49,42 @@ class DailyExport implements FromCollection, WithHeadings , WithEvents, WithStri
     
     public function headings() :array
     {
-        return ["Daily", "Excellent", "Normal","Bad"];
+        return [["Dalily report of ".$this->reqFromDate." to ".$this->reqToDate],["Daily", "Excellent", "Normal","Bad"]];
     }
 
     public function registerEvents(): array
     {
         return [
             AfterSheet::class    => function(AfterSheet $event) {
+              
+               
                 $event->sheet->getDelegate()->getRowDimension('1')->setRowHeight(20);
-                $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(30);
+                $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(15);
+                $event->sheet->mergeCells('A1:D1');
+                // $sheet->setBorder('A1:D1', 'thin');
                 $event->sheet->getDelegate()->getStyle('A1:D1')
                                 ->getAlignment()
                                 ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $event->sheet->getDelegate()->getStyle('A1:D1')
+                                ->getAlignment()
+                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $event->sheet->getDelegate()->getStyle('A2:D2')
+                                ->getAlignment()
+                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                                 
-   
+                 $event->sheet->getDelegate()->getStyle('A1:D1')
+                                ->getFont()
+                                ->setBold(true);
+                $event->sheet->getDelegate()->getStyle('1')->getFont()->setSize(13);
+                
+                $event->sheet->getStyle('A1:D33')->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                 ]);
             },
         ];
     }
